@@ -988,7 +988,7 @@ public:
   virtual void SetDeadline(Time t){};
   virtual Time GetDeadline(){return Seconds(0.0);};
   virtual void SetTxTotal(uint32_t txTotal){};
-  virtual uint32_t GetTxTotal(){return 0};
+  virtual uint32_t GetTxTotal(){return 0;};
 
 protected:
   /**

@@ -481,7 +481,7 @@ TcpSocketBase::SetTxTotal(uint32_t txTotal)
   m_tcb->m_TxTotal = txTotal;
 }
 uint32_t
-TcpSocketBase::GetDeadline ()
+TcpSocketBase::GetTxTotal ()
 {
   return m_tcb->m_TxTotal;
 }

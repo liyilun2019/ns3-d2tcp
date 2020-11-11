@@ -185,7 +185,7 @@ main (int argc, char *argv[])
   PointerValue varPtr;
   httpServer->GetAttribute ("Variables", varPtr);
   Ptr<ThreeGppHttpVariables> httpVariables = varPtr.Get<ThreeGppHttpVariables> ();
-  httpVariables->SetMainObjectSizeMean (1024000/4); // 250kB
+  httpVariables->SetMainObjectSizeMean (102400); // 100kB
   httpVariables->SetMainObjectSizeStdDev (40960); // 40kB
   httpVariables->SetMainObjectGenerationDelay(Seconds(1.0));
   httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));

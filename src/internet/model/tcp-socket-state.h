@@ -205,6 +205,7 @@ public:
   EcnCodePoint_t         m_ectCodePoint {Ect0};  //!< ECT code point to use
 
   Time                   m_deadline {Seconds(0.0)};
+  uint32_t               m_TxTotal {0};
 
   /**
    * \brief Get cwnd in segments rather than bytes

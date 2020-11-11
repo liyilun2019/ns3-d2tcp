@@ -475,6 +475,17 @@ TcpSocketBase::GetDeadline ()
 {
   return m_tcb->m_deadline;
 }
+void
+TcpSocketBase::SetTxTotal(uint32_t txTotal)
+{
+  m_tcb->m_TxTotal = txTotal;
+}
+uint32_t
+TcpSocketBase::GetDeadline ()
+{
+  return m_tcb->m_TxTotal;
+}
+
 
 
 /* Associate a node with this TCP socket */

@@ -125,6 +125,7 @@ main (int argc, char *argv[])
   LogComponentEnable ("ThreeGppHttpClient", LOG_INFO);
   LogComponentEnable ("ThreeGppHttpServer", LOG_INFO);
   LogComponentEnable ("ThreeGppHttpExample", LOG_INFO);
+  LogComponentEnable ("TcpD2tcp",LOG_INFO);
 
   uint32_t nCsma = 3;
   nCsma = nCsma == 0 ? 1 : nCsma;

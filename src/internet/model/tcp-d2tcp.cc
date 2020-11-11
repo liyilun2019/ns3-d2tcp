@@ -19,7 +19,7 @@
  *
  */
 
-#include "tcp-dctcp.h"
+#include "tcp-d2tcp.h"
 #include "ns3/log.h"
 #include "math.h"
 #include "ns3/tcp-socket-state.h"
@@ -142,7 +142,19 @@ TcpD2tcp::PktsAcked (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked, const Time
           bytesEcn = static_cast<double> (m_ackedBytesEcn * 1.0 / m_ackedBytesTotal);
         }
       m_alpha = (1.0 - m_g) * m_alpha + m_g * bytesEcn;
-      NS_LOG_INFO (this << "bytesEcn " << bytesEcn << ", m_alpha " << m_alpha);
+      uint32_t txTotal = tcb->m_TxTotal;
+      Time deadline = tcb->m_deadline;
+      Time remain = deadline - Simulator::Now ();
+      Time rtt = tcb->m_lastRtt;
+      if ((remain > Second(0.0)) && (txTotal > 0)) {
+        int64x64_t r = remain/rtt;
+        double d  = static_cast<double>(r);
+        double tc = 4.0 * (txTotal - m_ackedBytesTotal) / (3.0 * (tcb->m_cWnd));
+        double p  = tc/d;
+        m_alpha = pow(m_alpha,p);
+      }
+      NS_LOG_INFO (this << "bytesEcn " << bytesEcn << ", m_alpha " << m_alpha
+        <<", remain time "<<remain <<" txTotal "<<txTotal);
       Reset (tcb);
     }
 }

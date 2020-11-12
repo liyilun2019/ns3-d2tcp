@@ -125,6 +125,7 @@ main (int argc, char *argv[])
   LogComponentEnable ("ThreeGppHttpClient", LOG_INFO);
   LogComponentEnable ("ThreeGppHttpServer", LOG_INFO);
   LogComponentEnable ("ThreeGppHttpExample", LOG_INFO);
+  LogComponentEnable ("TcpD2tcp",LOG_INFO);
 
   uint32_t nCsma = 3;
   nCsma = nCsma == 0 ? 1 : nCsma;
@@ -184,7 +185,7 @@ main (int argc, char *argv[])
   PointerValue varPtr;
   httpServer->GetAttribute ("Variables", varPtr);
   Ptr<ThreeGppHttpVariables> httpVariables = varPtr.Get<ThreeGppHttpVariables> ();
-  httpVariables->SetMainObjectSizeMean (1024000/4); // 250kB
+  httpVariables->SetMainObjectSizeMean (102400); // 100kB
   httpVariables->SetMainObjectSizeStdDev (40960); // 40kB
   httpVariables->SetMainObjectGenerationDelay(Seconds(1.0));
   httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));

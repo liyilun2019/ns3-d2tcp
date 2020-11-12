@@ -893,6 +893,7 @@ ThreeGppHttpServerTxBuffer::WriteNewObject (Ptr<Socket> socket,
   it->second.txBufferContentType = contentType;
   it->second.txBufferSize = objectSize;
   it->second.hasTxedPartOfObject = false;
+  socket->SetTxTotal(objectSize);
 }
 
 

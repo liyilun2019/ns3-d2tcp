@@ -811,8 +811,11 @@ ThreeGppHttpClient::EnterReadingTime ()
                         << readingTime.As (Time::S) << ".");
 
       // Schedule a request of another main object once the reading time expires.
+      // m_eventRequestMainObject = Simulator::Schedule (
+      //     readingTime, &ThreeGppHttpClient::RequestMainObject, this);
+      // stop the application
       m_eventRequestMainObject = Simulator::Schedule (
-          readingTime, &ThreeGppHttpClient::RequestMainObject, this);
+          readingTime, &ThreeGppHttpClient::StopApplication, this);
       SwitchToState (READING);
     }
   else

@@ -148,7 +148,7 @@ TcpD2tcp::PktsAcked (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked, const Time
       Time rtt = tcb->m_lastRtt;
       if ((remain > Second(0.0)) && (txTotal > 0)) {
         int64x64_t r = remain/rtt;
-        double d  = static_cast<double>(r);
+        double d  = (double) r;
         double tc = 4.0 * (txTotal - m_ackedBytesTotal) / (3.0 * (tcb->m_cWnd));
         double p  = tc/d;
         m_alpha = pow(m_alpha,p);

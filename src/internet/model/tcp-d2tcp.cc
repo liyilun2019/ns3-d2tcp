@@ -23,6 +23,7 @@
 #include "ns3/log.h"
 #include "math.h"
 #include "ns3/tcp-socket-state.h"
+#include "ns3/core-module.h"
 
 namespace ns3 {
 

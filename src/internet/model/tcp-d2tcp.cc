@@ -146,7 +146,7 @@ TcpD2tcp::PktsAcked (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked, const Time
       Time deadline = tcb->m_deadline;
       Time remain = deadline - Simulator::Now ();
       Time rtt = tcb->m_lastRtt;
-      if ((remain > Second(0.0)) && (txTotal > 0)) {
+      if ((remain > Seconds(0.0)) && (txTotal > 0)) {
         int64x64_t r = remain/rtt;
         double d  =  r.GetDouble();
         double tc = 4.0 * (txTotal - m_ackedBytesTotal) / (3.0 * (tcb->m_cWnd));

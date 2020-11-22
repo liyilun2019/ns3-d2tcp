@@ -107,7 +107,7 @@ void
 TcpD2tcp::Init (Ptr<TcpSocketState> tcb)
 {
   NS_LOG_FUNCTION (this << tcb);
-  NS_LOG_INFO (this << "Enabling DctcpEcn for DCTCP");
+  NS_LOG_INFO (this << " Enabling DctcpEcn for DCTCP");
   tcb->m_useEcn = TcpSocketState::On;
   tcb->m_ecnMode = TcpSocketState::DctcpEcn;
   tcb->m_ectCodePoint = m_useEct0 ? TcpSocketState::Ect0 : TcpSocketState::Ect1;
@@ -154,8 +154,8 @@ TcpD2tcp::PktsAcked (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked, const Time
         double p  = tc/d;
         m_alpha = pow(m_alpha,p);
       }
-      NS_LOG_INFO (this << "bytesEcn " << bytesEcn << ", m_alpha " << m_alpha
-        <<", remain time "<<remain <<" txTotal "<<txTotal);
+      NS_LOG_INFO (this << " bytesEcn " << bytesEcn << ", m_alpha " << m_alpha
+        <<", remain time "<<remain <<" txTotal "<<txTotal <<" deadline is : "<<deadline<<" now is : "<<Simulator::Now());
       Reset (tcb);
     }
 }

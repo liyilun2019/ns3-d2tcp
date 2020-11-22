@@ -130,8 +130,8 @@ main (int argc, char *argv[])
   std::string tcpTypeId = "TcpD2tcp";
   Config::SetDefault ("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::" + tcpTypeId));
 
-  Config::SetDefault ("ns3::TcpSocket::SegmentSize", UintegerValue (1448));
-  Config::SetDefault ("ns3::TcpSocket::DelAckCount", UintegerValue (2));
+  // Config::SetDefault ("ns3::TcpSocket::SegmentSize", UintegerValue (1448));
+  // Config::SetDefault ("ns3::TcpSocket::DelAckCount", UintegerValue (2));
   GlobalValue::Bind ("ChecksumEnabled", BooleanValue (false));
 
   // Set default parameters for RED queue disc

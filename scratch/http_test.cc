@@ -189,7 +189,8 @@ main (int argc, char *argv[])
 
   NS_LOG_INFO ("Create applications.");
 
-  for(int i=0;i<1;i++){
+  // for(int i=0;i<1;i++){
+    int i=0;
     NS_LOG_INFO("Create server " << i);
     Ipv4Address serverAddress = csmaInterfaces.GetAddress (i);
 
@@ -214,15 +215,21 @@ main (int argc, char *argv[])
     Ptr<ThreeGppHttpVariables> httpVariables = varPtr.Get<ThreeGppHttpVariables> ();
     httpVariables->SetMainObjectSizeMean (102400); // 100kB
     httpVariables->SetMainObjectSizeStdDev (40960); // 40kB
-    httpVariables->SetMainObjectGenerationDelay(Seconds(1));
+    httpVariables->SetMainObjectGenerationDelay(Seconds(0.7));
     httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
 
     NS_LOG_INFO("Create clinet " << i);
 
     ThreeGppHttpClientHelper clientHelper (serverAddress);
-    ApplicationContainer clientApps = clientHelper.Install (p2pNodes.Get(0));
+    ApplicationContainer clientApps = clientHelper.Install (csmaNodes.Get(3));
+    Ptr<ThreeGppHttpClient> httpClient = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();
+
+    // Example of connecting to the trace sources
+    httpClient->TraceConnectWithoutContext ("RxMainObject", MakeCallback (&ClientMainObjectReceived));
+    // httpClient->TraceConnectWithoutContext ("RxEmbeddedObject", MakeCallback (&ClientEmbeddedObjectReceived));
+    httpClient->TraceConnectWithoutContext ("Rx", MakeCallback (&ClientRx));
     clientApps.Stop (Seconds (simTimeSec));
-  }
+  // }
 
 
   Simulator::Run ();

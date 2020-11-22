@@ -130,8 +130,8 @@ main (int argc, char *argv[])
   std::string tcpTypeId = "TcpD2tcp";
   Config::SetDefault ("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::" + tcpTypeId));
 
-  // Config::SetDefault ("ns3::TcpSocket::SegmentSize", UintegerValue (1448));
-  // Config::SetDefault ("ns3::TcpSocket::DelAckCount", UintegerValue (2));
+  Config::SetDefault ("ns3::TcpSocket::SegmentSize", UintegerValue (1448));
+  Config::SetDefault ("ns3::TcpSocket::DelAckCount", UintegerValue (2));
   GlobalValue::Bind ("ChecksumEnabled", BooleanValue (false));
 
   // Set default parameters for RED queue disc
@@ -189,7 +189,8 @@ main (int argc, char *argv[])
 
   NS_LOG_INFO ("Create applications.");
 
-  for(int i=0;i<4;i++){
+  for(int i=1;i<4;i++){
+    NS_LOG_INFO("Create server" << i)
     Ipv4Address serverAddress = csmaInterfaces.GetAddress (i);
 
     // Create HTTP server helper
@@ -215,6 +216,8 @@ main (int argc, char *argv[])
     httpVariables->SetMainObjectSizeStdDev (20480); // 20kB
     httpVariables->SetMainObjectGenerationDelay(Seconds(0.7));
     httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
+
+    NS_LOG_INFO("Create clinet" << i)
 
     ThreeGppHttpClientHelper clientHelper (serverAddress);
     ApplicationContainer clientApps = clientHelper.Install (p2pNodes.Get(0));

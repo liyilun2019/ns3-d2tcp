@@ -190,7 +190,7 @@ main (int argc, char *argv[])
   NS_LOG_INFO ("Create applications.");
 
   for(int i=1;i<4;i++){
-    NS_LOG_INFO("Create server" << i);
+    NS_LOG_INFO("Create server " << i);
     Ipv4Address serverAddress = csmaInterfaces.GetAddress (i);
 
     // Create HTTP server helper
@@ -199,7 +199,7 @@ main (int argc, char *argv[])
     // Install HTTP server
     ApplicationContainer serverApps = serverHelper.Install (csmaNodes.Get(i));
 
-    Ptr<ThreeGppHttpServer> httpServer = serverApps.Get (i)->GetObject<ThreeGppHttpServer> ();
+    Ptr<ThreeGppHttpServer> httpServer = serverApps.Get (0)->GetObject<ThreeGppHttpServer> ();
 
     // Example of connecting to the trace sources
     httpServer->TraceConnectWithoutContext ("ConnectionEstablished",
@@ -217,7 +217,7 @@ main (int argc, char *argv[])
     httpVariables->SetMainObjectGenerationDelay(Seconds(0.7));
     httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
 
-    NS_LOG_INFO("Create clinet" << i);
+    NS_LOG_INFO("Create clinet " << i);
 
     ThreeGppHttpClientHelper clientHelper (serverAddress);
     ApplicationContainer clientApps = clientHelper.Install (p2pNodes.Get(0));

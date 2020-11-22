@@ -189,8 +189,8 @@ main (int argc, char *argv[])
 
   NS_LOG_INFO ("Create applications.");
 
-  // for(int i=0;i<1;i++){
-    int i=0;
+  for(int i=0;i<4;i++){
+    // int i=0;
     NS_LOG_INFO("Create server " << i);
     Ipv4Address serverAddress = csmaInterfaces.GetAddress (i);
 
@@ -213,8 +213,8 @@ main (int argc, char *argv[])
     PointerValue varPtr;
     httpServer->GetAttribute ("Variables", varPtr);
     Ptr<ThreeGppHttpVariables> httpVariables = varPtr.Get<ThreeGppHttpVariables> ();
-    httpVariables->SetMainObjectSizeMean (102400); // 100kB
-    httpVariables->SetMainObjectSizeStdDev (40960); // 40kB
+    httpVariables->SetMainObjectSizeMean (51200); // 50kB
+    httpVariables->SetMainObjectSizeStdDev (10240); // 10kB
     httpVariables->SetMainObjectGenerationDelay(Seconds(0.7));
     httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
 
@@ -229,7 +229,7 @@ main (int argc, char *argv[])
     // httpClient->TraceConnectWithoutContext ("RxEmbeddedObject", MakeCallback (&ClientEmbeddedObjectReceived));
     httpClient->TraceConnectWithoutContext ("Rx", MakeCallback (&ClientRx));
     clientApps.Stop (Seconds (simTimeSec));
-  // }
+  }
 
 
   Simulator::Run ();

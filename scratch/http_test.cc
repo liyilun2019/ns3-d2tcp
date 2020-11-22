@@ -189,7 +189,7 @@ main (int argc, char *argv[])
 
   NS_LOG_INFO ("Create applications.");
 
-  for(int i=0;i<4;i++){
+  for(int i=0;i<1;i++){
     // int i=0;
     NS_LOG_INFO("Create server " << i);
     Ipv4Address serverAddress = csmaInterfaces.GetAddress (i);

@@ -127,6 +127,29 @@ main (int argc, char *argv[])
   LogComponentEnable ("ThreeGppHttpExample", LOG_INFO);
   LogComponentEnable ("TcpD2tcp",LOG_INFO);
 
+  std::string tcpTypeId = "TcpD2tcp";
+  Config::SetDefault ("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::" + tcpTypeId));
+
+  Config::SetDefault ("ns3::TcpSocket::SegmentSize", UintegerValue (1448));
+  Config::SetDefault ("ns3::TcpSocket::DelAckCount", UintegerValue (2));
+  GlobalValue::Bind ("ChecksumEnabled", BooleanValue (false));
+
+  // Set default parameters for RED queue disc
+  Config::SetDefault ("ns3::RedQueueDisc::UseEcn", BooleanValue (true));
+  // ARED may be used but the queueing delays will increase; it is disabled
+  // here because the SIGCOMM paper did not mention it
+  // Config::SetDefault ("ns3::RedQueueDisc::ARED", BooleanValue (true));
+  // Config::SetDefault ("ns3::RedQueueDisc::Gentle", BooleanValue (true));
+  Config::SetDefault ("ns3::RedQueueDisc::UseHardDrop", BooleanValue (false));
+  Config::SetDefault ("ns3::RedQueueDisc::MeanPktSize", UintegerValue (1500));
+  // Triumph and Scorpion switches used in DCTCP Paper have 4 MB of buffer
+  // If every packet is 1500 bytes, 2666 packets can be stored in 4 MB
+  Config::SetDefault ("ns3::RedQueueDisc::MaxSize", QueueSizeValue (QueueSize ("2666p")));
+  // DCTCP tracks instantaneous queue length only; so set QW = 1
+  Config::SetDefault ("ns3::RedQueueDisc::QW", DoubleValue (1));
+  Config::SetDefault ("ns3::RedQueueDisc::MinTh", DoubleValue (20));
+  Config::SetDefault ("ns3::RedQueueDisc::MaxTh", DoubleValue (60));
+
   uint32_t nCsma = 3;
   nCsma = nCsma == 0 ? 1 : nCsma;
 

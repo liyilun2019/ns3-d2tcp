@@ -766,7 +766,7 @@ ThreeGppHttpClient::ParseMainObject ()
   if (m_state == PARSING_MAIN_OBJECT)
     {
       // m_embeddedObjectsToBeRequested = m_httpVariables->GetNumOfEmbeddedObjects ();
-      m_embeddedObjectsToBeRequested = 0
+      m_embeddedObjectsToBeRequested = 0;
       NS_LOG_INFO (this << " Parsing has determined "
                         << m_embeddedObjectsToBeRequested
                         << " embedded object(s) in the main object.");

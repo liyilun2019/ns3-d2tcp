@@ -188,44 +188,39 @@ main (int argc, char *argv[])
   csmaInterfaces = address.Assign (csmaDevices);
 
   NS_LOG_INFO ("Create applications.");
-  Ipv4Address serverAddress = csmaInterfaces.GetAddress (3);
 
-  // Create HTTP server helper
-  ThreeGppHttpServerHelper serverHelper (serverAddress);
+  for(int i=0;i<4;i++){
+    Ipv4Address serverAddress = csmaInterfaces.GetAddress (i);
 
-  // Install HTTP server
-  ApplicationContainer serverApps = serverHelper.Install (csmaNodes.Get (3));
-  Ptr<ThreeGppHttpServer> httpServer = serverApps.Get (0)->GetObject<ThreeGppHttpServer> ();
+    // Create HTTP server helper
+    ThreeGppHttpServerHelper serverHelper (serverAddress);
 
-  // Example of connecting to the trace sources
-  httpServer->TraceConnectWithoutContext ("ConnectionEstablished",
-                                          MakeCallback (&ServerConnectionEstablished));
-  httpServer->TraceConnectWithoutContext ("MainObject", MakeCallback (&MainObjectGenerated));
-  httpServer->TraceConnectWithoutContext ("EmbeddedObject", MakeCallback (&EmbeddedObjectGenerated));
-  httpServer->TraceConnectWithoutContext ("Tx", MakeCallback (&ServerTx));
+    // Install HTTP server
+    ApplicationContainer serverApps = serverHelper.Install (csmaNodes.Get(i));
 
-  // Setup HTTP variables for the server
-  PointerValue varPtr;
-  httpServer->GetAttribute ("Variables", varPtr);
-  Ptr<ThreeGppHttpVariables> httpVariables = varPtr.Get<ThreeGppHttpVariables> ();
-  httpVariables->SetMainObjectSizeMean (102400); // 100kB
-  httpVariables->SetMainObjectSizeStdDev (40960); // 40kB
-  httpVariables->SetMainObjectGenerationDelay(Seconds(1.0));
-  httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
+    Ptr<ThreeGppHttpServer> httpServer = serverApps.Get (i)->GetObject<ThreeGppHttpServer> ();
 
-  // Create HTTP client helper
-  ThreeGppHttpClientHelper clientHelper (serverAddress);
+    // Example of connecting to the trace sources
+    httpServer->TraceConnectWithoutContext ("ConnectionEstablished",
+                                            MakeCallback (&ServerConnectionEstablished));
+    httpServer->TraceConnectWithoutContext ("MainObject", MakeCallback (&MainObjectGenerated));
+    httpServer->TraceConnectWithoutContext ("EmbeddedObject", MakeCallback (&EmbeddedObjectGenerated));
+    httpServer->TraceConnectWithoutContext ("Tx", MakeCallback (&ServerTx));
 
-  // Install HTTP client
-  NodeContainer cli_nodes = NodeContainer(csmaNodes.Get(0),csmaNodes.Get(1));
-  ApplicationContainer clientApps = clientHelper.Install (cli_nodes);
-  Ptr<ThreeGppHttpClient> httpClient0 = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();
-  // cli_trace(httpClient0);
-  Ptr<ThreeGppHttpClient> httpClient1 = clientApps.Get (1)->GetObject<ThreeGppHttpClient> ();
-  // cli_trace(httpClient1);
-  // Ptr<ThreeGppHttpClient> httpClient2 = clientApps.Get (2)->GetObject<ThreeGppHttpClient> ();
-  // cli_trace(httpClient2);
-  clientApps.Stop (Seconds (simTimeSec));
+    // Setup HTTP variables for the server
+    PointerValue varPtr;
+    httpServer->GetAttribute ("Variables", varPtr);
+    Ptr<ThreeGppHttpVariables> httpVariables = varPtr.Get<ThreeGppHttpVariables> ();
+    httpVariables->SetMainObjectSizeMean (51200); // 50kB
+    httpVariables->SetMainObjectSizeStdDev (20480); // 20kB
+    httpVariables->SetMainObjectGenerationDelay(Seconds(0.7));
+    httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
+
+    ThreeGppHttpClientHelper clientHelper (serverAddress);
+    ApplicationContainer clientApps = clientHelper.Install (p2pNodes.Get(0));
+    clientApps.Stop (Seconds (simTimeSec));
+  }
+
 
   Simulator::Run ();
   Simulator::Destroy ();

@@ -168,7 +168,7 @@ main (int argc, char *argv[])
   p2pDevices = pointToPoint.Install (p2pNodes);
 
   CsmaHelper csma;
-  csma.SetChannelAttribute ("DataRate", StringValue ("10Mbps"));
+  csma.SetChannelAttribute ("DataRate", StringValue ("100Mbps"));
   csma.SetChannelAttribute ("Delay", TimeValue (NanoSeconds (656000)));
 
   NetDeviceContainer csmaDevices;
@@ -212,9 +212,9 @@ main (int argc, char *argv[])
     PointerValue varPtr;
     httpServer->GetAttribute ("Variables", varPtr);
     Ptr<ThreeGppHttpVariables> httpVariables = varPtr.Get<ThreeGppHttpVariables> ();
-    httpVariables->SetMainObjectSizeMean (51200); // 50kB
-    httpVariables->SetMainObjectSizeStdDev (20480); // 20kB
-    httpVariables->SetMainObjectGenerationDelay(Seconds(0.7));
+    httpVariables->SetMainObjectSizeMean (102400); // 100kB
+    httpVariables->SetMainObjectSizeStdDev (40960); // 40kB
+    httpVariables->SetMainObjectGenerationDelay(Seconds(1));
     httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
 
     NS_LOG_INFO("Create clinet " << i);

@@ -124,7 +124,7 @@ public:
   static TypeId GetTypeId ();
 
   void SetDelay(Time delay);
-  Time GetDeadline();
+  Time GetDeadline() const;
 
   /**
    * Returns a pointer to the associated socket.

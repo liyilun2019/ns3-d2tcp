@@ -216,7 +216,7 @@ main (int argc, char *argv[])
     httpVariables->SetMainObjectSizeMean (51200); // 50kB
     httpVariables->SetMainObjectSizeStdDev (10240); // 10kB
     httpVariables->SetMainObjectGenerationDelay(Seconds(0.7));
-    httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
+    // httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
 
     NS_LOG_INFO("Create clinet " << i);
 

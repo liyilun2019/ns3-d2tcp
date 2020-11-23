@@ -37,12 +37,12 @@ TypeId TcpD2tcp::GetTypeId (void)
     .SetParent<TcpNewReno> ()
     .AddConstructor<TcpD2tcp> ()
     .SetGroupName ("Internet")
-    .AddAttribute ("DctcpShiftG",
-                   "Parameter G for updating dctcp_alpha",
+    .AddAttribute ("D2tcpShiftG",
+                   "Parameter G for updating d2tcp_alpha",
                    DoubleValue (0.0625),
                    MakeDoubleAccessor (&TcpD2tcp::m_g),
                    MakeDoubleChecker<double> (0, 1))
-    .AddAttribute ("DctcpAlphaOnInit",
+    .AddAttribute ("D2tcpAlphaOnInit",
                    "Initial alpha value",
                    DoubleValue (1.0),
                    MakeDoubleAccessor (&TcpD2tcp::SetDctcpAlpha),
@@ -107,7 +107,7 @@ void
 TcpD2tcp::Init (Ptr<TcpSocketState> tcb)
 {
   NS_LOG_FUNCTION (this << tcb);
-  NS_LOG_INFO (this << " Enabling DctcpEcn for DCTCP");
+  NS_LOG_INFO (this << " Enabling D2tcpEcn for D2TCP");
   tcb->m_useEcn = TcpSocketState::On;
   tcb->m_ecnMode = TcpSocketState::DctcpEcn;
   tcb->m_ectCodePoint = m_useEct0 ? TcpSocketState::Ect0 : TcpSocketState::Ect1;
@@ -155,7 +155,8 @@ TcpD2tcp::PktsAcked (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked, const Time
         m_alpha = pow(m_alpha,p);
       }
       NS_LOG_INFO (this << " bytesEcn " << bytesEcn << ", m_alpha " << m_alpha
-        <<", remain time "<<remain <<" txTotal "<<txTotal <<" deadline is : "<<deadline<<" now is : "<<Simulator::Now());
+        <<", remain time "<<remain <<" txTotal "<<txTotal <<" deadline is : "
+        <<deadline<<" now is : "<<Simulator::Now()<<" rtt is : "<<rtt);
       Reset (tcb);
     }
 }

@@ -64,7 +64,8 @@ ThreeGppHttpClient::SetDelay(Time delay){
 }
 
 Time 
-ThreeGppHttpClient::GetDeadline(){
+ThreeGppHttpClient::GetDeadline() const
+{
   return m_deadline;
 }
 

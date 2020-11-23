@@ -26,6 +26,8 @@
 #include "ns3/applications-module.h"
 
 using namespace ns3;
+int not_miss_count=0;
+int all_cnt=0;
 
 NS_LOG_COMPONENT_DEFINE ("ThreeGppHttpExample");
 
@@ -69,7 +71,11 @@ ClientMainObjectReceived (Ptr<const ThreeGppHttpClient> client, Ptr<const Packet
       && header.GetContentType () == ThreeGppHttpHeader::MAIN_OBJECT)
     {
       NS_LOG_INFO ("Client has successfully received a main object of "
-                   << p->GetSize () << " bytes."<<" deadline is :"<<header.GetDeadline());
+                   << p->GetSize () << " bytes."<<" deadline is :"<<clinet.GetDeadline());
+      if(Simulator::Now()>clinet.GetDeadline()){
+        not_miss_count++;
+      }
+      all_cnt++;
     }
   else
     {
@@ -189,7 +195,7 @@ main (int argc, char *argv[])
 
   NS_LOG_INFO ("Create applications.");
 
-  for(int i=0;i<1;i++){
+  for(int i=0;i<4;i++){
     // int i=0;
     NS_LOG_INFO("Create server " << i);
     Ipv4Address serverAddress = csmaInterfaces.GetAddress (i);

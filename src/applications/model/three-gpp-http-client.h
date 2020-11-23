@@ -124,6 +124,7 @@ public:
   static TypeId GetTypeId ();
 
   void SetDelay(Time delay);
+  Time GetDeadline();
 
   /**
    * Returns a pointer to the associated socket.
@@ -364,6 +365,7 @@ private:
   uint32_t     m_embeddedObjectsToBeRequested;
 
   Time m_delay;
+  Time m_deadline;
 
   // ATTRIBUTES
 

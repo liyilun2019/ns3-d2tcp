@@ -223,7 +223,7 @@ main (int argc, char *argv[])
     ThreeGppHttpClientHelper clientHelper (serverAddress);
     ApplicationContainer clientApps = clientHelper.Install (csmaNodes.Get(3));
     Ptr<ThreeGppHttpClient> httpClient = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();
-    httpClient->SetDelay(Seconds(1))
+    httpClient->SetDelay(Seconds(1));
     // Example of connecting to the trace sources
     httpClient->TraceConnectWithoutContext ("RxMainObject", MakeCallback (&ClientMainObjectReceived));
     // httpClient->TraceConnectWithoutContext ("RxEmbeddedObject", MakeCallback (&ClientEmbeddedObjectReceived));

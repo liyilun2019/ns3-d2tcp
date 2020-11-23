@@ -76,6 +76,7 @@ ClientMainObjectReceived (Ptr<const ThreeGppHttpClient> client, Ptr<const Packet
         not_miss_count++;
       }
       all_cnt++;
+      NS_LOG_INFO("not_miss_count = "<<not_miss_count<<", all_cnt = "<<all_cnt);
     }
   else
     {
@@ -128,10 +129,10 @@ main (int argc, char *argv[])
   Time::SetResolution (Time::NS);
   LogComponentEnableAll (LOG_PREFIX_TIME);
   //LogComponentEnableAll (LOG_PREFIX_FUNC);
-  LogComponentEnable ("ThreeGppHttpClient", LOG_INFO);
-  LogComponentEnable ("ThreeGppHttpServer", LOG_INFO);
+  // LogComponentEnable ("ThreeGppHttpClient", LOG_INFO);
+  // LogComponentEnable ("ThreeGppHttpServer", LOG_INFO);
   LogComponentEnable ("ThreeGppHttpExample", LOG_INFO);
-  LogComponentEnable ("TcpD2tcp",LOG_INFO);
+  // LogComponentEnable ("TcpD2tcp",LOG_INFO);
 
   std::string tcpTypeId = "TcpD2tcp";
   Config::SetDefault ("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::" + tcpTypeId));

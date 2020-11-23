@@ -51,7 +51,7 @@ ThreeGppHttpClient::ThreeGppHttpClient ()
   m_objectClientTs (MilliSeconds (0)),
   m_objectServerTs (MilliSeconds (0)),
   m_embeddedObjectsToBeRequested (0),
-  m_delay (MicroSeconds(40000)),
+  m_delay (MicroSeconds(1000000)),
   m_httpVariables (CreateObject<ThreeGppHttpVariables> ())
 {
   NS_LOG_FUNCTION (this);

@@ -363,6 +363,8 @@ private:
   /// Determined after parsing the main object.
   uint32_t     m_embeddedObjectsToBeRequested;
 
+  Time m_delay;
+
   // ATTRIBUTES
 
   /// The `Variables` attribute.
@@ -372,7 +374,7 @@ private:
   /// The `RemoteServerPort` attribute.
   uint16_t                              m_remoteServerPort;
 
-  Time m_delay;
+  
 
   // TRACE SOURCES
 

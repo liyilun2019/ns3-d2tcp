@@ -71,8 +71,8 @@ ClientMainObjectReceived (Ptr<const ThreeGppHttpClient> client, Ptr<const Packet
       && header.GetContentType () == ThreeGppHttpHeader::MAIN_OBJECT)
     {
       NS_LOG_INFO ("Client has successfully received a main object of "
-                   << p->GetSize () << " bytes."<<" deadline is :"<<clinet.GetDeadline());
-      if(Simulator::Now()>client.GetDeadline()){
+                   << p->GetSize () << " bytes."<<" deadline is :"<<client->GetDeadline());
+      if(Simulator::Now()>client->GetDeadline()){
         not_miss_count++;
       }
       all_cnt++;

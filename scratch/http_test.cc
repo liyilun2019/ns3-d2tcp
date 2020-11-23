@@ -60,7 +60,7 @@ ClientRx (Ptr<const Packet> packet, const Address &address)
 }
 
 void
-ClientMainObjectReceived (Ptr<const ThreeGppHttpClient>, Ptr<const Packet> packet)
+ClientMainObjectReceived (Ptr<const ThreeGppHttpClient> client, Ptr<const Packet> packet)
 {
   Ptr<Packet> p = packet->Copy ();
   ThreeGppHttpHeader header;
@@ -69,7 +69,7 @@ ClientMainObjectReceived (Ptr<const ThreeGppHttpClient>, Ptr<const Packet> packe
       && header.GetContentType () == ThreeGppHttpHeader::MAIN_OBJECT)
     {
       NS_LOG_INFO ("Client has successfully received a main object of "
-                   << p->GetSize () << " bytes.");
+                   << p->GetSize () << " bytes."<<" deadline is :"<<header.GetDeadline());
     }
   else
     {

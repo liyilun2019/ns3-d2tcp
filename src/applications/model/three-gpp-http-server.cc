@@ -496,7 +496,7 @@ void
 ThreeGppHttpServer::SendCallback (Ptr<Socket> socket, uint32_t availableBufferSize)
 {
   NS_LOG_FUNCTION (this << socket << availableBufferSize);
-  NS_LOG_INFO(this << socket->GetDeadline());
+  NS_LOG_INFO(this <<" socket deadline is set to " << socket->GetDeadline());
 
   if (!m_txBuffer->IsBufferEmpty (socket))
     {

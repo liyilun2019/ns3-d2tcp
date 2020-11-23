@@ -215,7 +215,7 @@ main (int argc, char *argv[])
     Ptr<ThreeGppHttpVariables> httpVariables = varPtr.Get<ThreeGppHttpVariables> ();
     httpVariables->SetMainObjectSizeMean (51200); // 50kB
     httpVariables->SetMainObjectSizeStdDev (10240); // 10kB
-    httpVariables->SetMainObjectGenerationDelay(Seconds(0.7));
+    httpVariables->SetMainObjectGenerationDelay(Seconds(0.8));
     // httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
 
     NS_LOG_INFO("Create clinet " << i);
@@ -223,7 +223,7 @@ main (int argc, char *argv[])
     ThreeGppHttpClientHelper clientHelper (serverAddress);
     ApplicationContainer clientApps = clientHelper.Install (csmaNodes.Get(3));
     Ptr<ThreeGppHttpClient> httpClient = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();
-
+    httpClient->SetDelat(Seconds(1))
     // Example of connecting to the trace sources
     httpClient->TraceConnectWithoutContext ("RxMainObject", MakeCallback (&ClientMainObjectReceived));
     // httpClient->TraceConnectWithoutContext ("RxEmbeddedObject", MakeCallback (&ClientEmbeddedObjectReceived));

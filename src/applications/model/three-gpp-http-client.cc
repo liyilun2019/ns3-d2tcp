@@ -51,11 +51,16 @@ ThreeGppHttpClient::ThreeGppHttpClient ()
   m_objectClientTs (MilliSeconds (0)),
   m_objectServerTs (MilliSeconds (0)),
   m_embeddedObjectsToBeRequested (0),
+  m_delay (MicroSeconds(40000)),
   m_httpVariables (CreateObject<ThreeGppHttpVariables> ())
 {
   NS_LOG_FUNCTION (this);
 }
 
+void 
+ThreeGppHttpClient::SetDelay(Time delay){
+  m_delay = delay;
+}
 
 // static
 TypeId
@@ -453,8 +458,7 @@ ThreeGppHttpClient::RequestMainObject ()
       header.SetContentLength (0); // Request does not need any content length.
       header.SetContentType (ThreeGppHttpHeader::MAIN_OBJECT);
       header.SetClientTs (Simulator::Now ());
-      uint64_t us_delay = 100000;
-      header.SetDeadline (Simulator::Now () + MicroSeconds(us_delay));
+      header.SetDeadline (Simulator::Now () + m_delay);
 
       const uint32_t requestSize = m_httpVariables->GetRequestSize ();
       Ptr<Packet> packet = Create<Packet> (requestSize);
@@ -500,8 +504,7 @@ ThreeGppHttpClient::RequestEmbeddedObject ()
           header.SetContentLength (0); // Request does not need any content length.
           header.SetContentType (ThreeGppHttpHeader::EMBEDDED_OBJECT);
           header.SetClientTs (Simulator::Now ());
-          uint64_t us_delay = 200000;
-          header.SetDeadline (Simulator::Now () + MicroSeconds(us_delay));
+          header.SetDeadline (Simulator::Now () + m_delay);
 
           const uint32_t requestSize = m_httpVariables->GetRequestSize ();
           Ptr<Packet> packet = Create<Packet> (requestSize);

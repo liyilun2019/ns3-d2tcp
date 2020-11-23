@@ -123,6 +123,8 @@ public:
    */
   static TypeId GetTypeId ();
 
+  void SetDelay(Time delay);
+
   /**
    * Returns a pointer to the associated socket.
    * \return Pointer to the associated socket.
@@ -369,6 +371,8 @@ private:
   Address                               m_remoteServerAddress;
   /// The `RemoteServerPort` attribute.
   uint16_t                              m_remoteServerPort;
+
+  Time m_delay;
 
   // TRACE SOURCES
 

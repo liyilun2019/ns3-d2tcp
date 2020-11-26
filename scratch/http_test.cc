@@ -72,7 +72,7 @@ ClientMainObjectReceived (Ptr<const ThreeGppHttpClient> client, Ptr<const Packet
     {
       NS_LOG_INFO ("Client has successfully received a main object of "
                    << p->GetSize () << " bytes."<<" deadline is :"<<client->GetDeadline());
-      if(Simulator::Now()>client->GetDeadline()){
+      if(Simulator::Now()<=client->GetDeadline()){
         not_miss_count++;
       }
       all_cnt++;

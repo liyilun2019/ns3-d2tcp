@@ -159,7 +159,7 @@ main (int argc, char *argv[])
   S.Create (node_cnt);
 
   PointToPointHelper pointToPointSR;
-  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("200Mbps"));
+  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("40Mbps"));
   pointToPointSR.SetChannelAttribute ("Delay", StringValue ("10us"));
 
   // 建立拓扑结构
@@ -241,6 +241,9 @@ main (int argc, char *argv[])
 
   // 对每个节点，建立next_cnt个clinet，向后next_cnt个server发请求
   for (std::size_t i = 0; i<node_cnt ;i++){
+    if(i%(next_cnt/8)!=0){
+      continue;
+    }
     for (std::size_t j=0 ; j < next_cnt; j++){
       std::size_t nxt = (i+j+1)%node_cnt;
       Ipv4Address serverAddress = ipST[nxt].GetAddress (0);

@@ -113,10 +113,10 @@ int
 main (int argc, char *argv[])
 {
   double simTimeSec = 20;
-  std::size_t node_cnt=64;
+  std::size_t node_cnt=16;
   std::size_t next_cnt=8;
   Time generationDelay = Seconds(0.1);
-  std::size_t package_size = 512*1042;
+  std::size_t package_size = 512*1024;
   Time delay = Seconds(0.2);
   CommandLine cmd (__FILE__);
   cmd.AddValue ("SimulationTime", "Length of simulation in seconds.", simTimeSec);
@@ -130,7 +130,7 @@ main (int argc, char *argv[])
   LogComponentEnable ("ThreeGppHttpExample", LOG_INFO);
   // LogComponentEnable ("TcpD2tcp",LOG_INFO);
 
-  std::string tcpTypeId = "TcpDctcp";
+  std::string tcpTypeId = "TcpD2tcp";
   Config::SetDefault ("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::" + tcpTypeId));
 
   Config::SetDefault ("ns3::TcpSocket::SegmentSize", UintegerValue (1448));
@@ -159,7 +159,7 @@ main (int argc, char *argv[])
   S.Create (node_cnt);
 
   PointToPointHelper pointToPointSR;
-  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("100Mbps"));
+  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("150Mbps"));
   pointToPointSR.SetChannelAttribute ("Delay", StringValue ("100us"));
 
   // 建立拓扑结构
@@ -176,27 +176,27 @@ main (int argc, char *argv[])
   InternetStackHelper stack;
   stack.InstallAll ();
 
-  TrafficControlHelper tchRed10;
+  // TrafficControlHelper tchRed10;
   // MinTh = 50, MaxTh = 150 recommended in ACM SIGCOMM 2010 DCTCP Paper
   // This yields a target (MinTh) queue depth of 60us at 10 Gb/s
-  tchRed10.SetRootQueueDisc ("ns3::RedQueueDisc",
-                             "LinkBandwidth", StringValue ("10Gbps"),
-                             "LinkDelay", StringValue ("10us"),
-                             "MinTh", DoubleValue (50),
-                             "MaxTh", DoubleValue (150));
+  // tchRed10.SetRootQueueDisc ("ns3::RedQueueDisc",
+  //                            "LinkBandwidth", StringValue ("10Gbps"),
+  //                            "LinkDelay", StringValue ("10us"),
+  //                            "MinTh", DoubleValue (50),
+  //                            "MaxTh", DoubleValue (150));
 
-  TrafficControlHelper tchRed1;
+  // TrafficControlHelper tchRed1;
   // MinTh = 20, MaxTh = 60 recommended in ACM SIGCOMM 2010 DCTCP Paper
   // This yields a target queue depth of 250us at 1 Gb/s
-  tchRed1.SetRootQueueDisc ("ns3::RedQueueDisc",
-                            "LinkBandwidth", StringValue ("100bps"),
-                            "LinkDelay", StringValue ("100us"),
-                            "MinTh", DoubleValue (20),
-                            "MaxTh", DoubleValue (60));
-  for (std::size_t i = 0; i < node_cnt; i++)
-    {
-      tchRed1.Install (ST[i].Get (1));
-    }
+  // tchRed1.SetRootQueueDisc ("ns3::RedQueueDisc",
+                            // "LinkBandwidth", StringValue ("100bps"),
+                            // "LinkDelay", StringValue ("100us"),
+                            // "MinTh", DoubleValue (20),
+                            // "MaxTh", DoubleValue (60));
+  // for (std::size_t i = 0; i < node_cnt; i++)
+  //   {
+  //     tchRed1.Install (ST[i].Get (1));
+  //   }
 
   Ipv4AddressHelper address;
   std::vector<Ipv4InterfaceContainer> ipST;
@@ -235,7 +235,7 @@ main (int argc, char *argv[])
     Ptr<ThreeGppHttpVariables> httpVariables = varPtr.Get<ThreeGppHttpVariables> ();
     httpVariables->SetMainObjectSizeMean (package_size); 
     httpVariables->SetMainObjectSizeStdDev (10240);
-    httpVariables->SetMainObjectGenerationDelay(generationDelay);
+    httpVariables->SetMainObjectGenerationDelay(generationDelay*i);
     // httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
   }
 
@@ -249,7 +249,7 @@ main (int argc, char *argv[])
       ThreeGppHttpClientHelper clientHelper (serverAddress);
       ApplicationContainer clientApps = clientHelper.Install (S.Get(i));
       Ptr<ThreeGppHttpClient> httpClient = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();
-      httpClient->SetDelay(delay+generationDelay);
+      httpClient->SetDelay(delay+generationDelay*i);
       // Example of connecting to the trace sources
       httpClient->TraceConnectWithoutContext ("RxMainObject", MakeCallback (&ClientMainObjectReceived));
       // httpClient->TraceConnectWithoutContext ("RxEmbeddedObject", MakeCallback (&ClientEmbeddedObjectReceived));

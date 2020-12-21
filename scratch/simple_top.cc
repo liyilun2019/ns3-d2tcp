@@ -59,7 +59,7 @@ ServerTx (Ptr<const Packet> packet)
 void
 ClientRx (Ptr<const Packet> packet, const Address &address)
 {
-  NS_LOG_INFO ("Client received a packet of " << packet->GetSize () << " bytes from " << InetSocketAddress::ConvertFrom(address).GetIpv4 ());
+  // NS_LOG_INFO ("Client received a packet of " << packet->GetSize () << " bytes from " << InetSocketAddress::ConvertFrom(address).GetIpv4 ());
 }
 
 void
@@ -113,8 +113,8 @@ int
 main (int argc, char *argv[])
 {
   double simTimeSec = 20;
-  std::size_t node_cnt=16;
-  std::size_t next_cnt=4;
+  std::size_t node_cnt=64;
+  std::size_t next_cnt=8;
   Time generationDelay = Seconds(0.1);
   std::size_t package_size = 512*1042;
   Time delay = Seconds(0.2);
@@ -130,7 +130,7 @@ main (int argc, char *argv[])
   LogComponentEnable ("ThreeGppHttpExample", LOG_INFO);
   // LogComponentEnable ("TcpD2tcp",LOG_INFO);
 
-  std::string tcpTypeId = "TcpD2tcp";
+  std::string tcpTypeId = "TcpDctcp";
   Config::SetDefault ("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::" + tcpTypeId));
 
   Config::SetDefault ("ns3::TcpSocket::SegmentSize", UintegerValue (1448));

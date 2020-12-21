@@ -35,25 +35,25 @@ NS_LOG_COMPONENT_DEFINE ("ThreeGppHttpExample");
 void
 ServerConnectionEstablished (Ptr<const ThreeGppHttpServer>, Ptr<Socket>)
 {
-  NS_LOG_INFO ("Client has established a connection to the server.");
+  // NS_LOG_INFO ("Client has established a connection to the server.");
 }
 
 void
 MainObjectGenerated (uint32_t size)
 {
-  NS_LOG_INFO ("Server generated a main object of " << size << " bytes.");
+  // NS_LOG_INFO ("Server generated a main object of " << size << " bytes.");
 }
 
 void
 EmbeddedObjectGenerated (uint32_t size)
 {
-  NS_LOG_INFO ("Server generated an embedded object of " << size << " bytes.");
+  // NS_LOG_INFO ("Server generated an embedded object of " << size << " bytes.");
 }
 
 void
 ServerTx (Ptr<const Packet> packet)
 {
-  NS_LOG_INFO ("Server sent a packet of " << packet->GetSize () << " bytes.");
+  // NS_LOG_INFO ("Server sent a packet of " << packet->GetSize () << " bytes.");
 }
 
 void
@@ -112,9 +112,12 @@ ClientEmbeddedObjectReceived (Ptr<const ThreeGppHttpClient>, Ptr<const Packet> p
 int
 main (int argc, char *argv[])
 {
-  double simTimeSec = 10;
-  std::size_t node_cnt=32;
+  double simTimeSec = 20;
+  std::size_t node_cnt=16;
   std::size_t next_cnt=4;
+  Time generationDelay = Seconds(0.1);
+  std::size_t package_size = 150*1024*1042;
+  Time delay = Seconds(1);
   CommandLine cmd (__FILE__);
   cmd.AddValue ("SimulationTime", "Length of simulation in seconds.", simTimeSec);
   cmd.Parse (argc, argv);
@@ -230,9 +233,9 @@ main (int argc, char *argv[])
     PointerValue varPtr;
     httpServer->GetAttribute ("Variables", varPtr);
     Ptr<ThreeGppHttpVariables> httpVariables = varPtr.Get<ThreeGppHttpVariables> ();
-    httpVariables->SetMainObjectSizeMean (51200); // 50kB
-    httpVariables->SetMainObjectSizeStdDev (10240); // 10kB
-    httpVariables->SetMainObjectGenerationDelay(Seconds(0.8));
+    httpVariables->SetMainObjectSizeMean (package_size); 
+    httpVariables->SetMainObjectSizeStdDev (10240);
+    httpVariables->SetMainObjectGenerationDelay(generationDelay);
     // httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
   }
 
@@ -246,7 +249,7 @@ main (int argc, char *argv[])
       ThreeGppHttpClientHelper clientHelper (serverAddress);
       ApplicationContainer clientApps = clientHelper.Install (S.Get(i));
       Ptr<ThreeGppHttpClient> httpClient = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();
-      httpClient->SetDelay(Seconds(1.0));
+      httpClient->SetDelay(delay+generationDelay);
       // Example of connecting to the trace sources
       httpClient->TraceConnectWithoutContext ("RxMainObject", MakeCallback (&ClientMainObjectReceived));
       // httpClient->TraceConnectWithoutContext ("RxEmbeddedObject", MakeCallback (&ClientEmbeddedObjectReceived));

@@ -159,7 +159,7 @@ main (int argc, char *argv[])
   S.Create (node_cnt);
 
   PointToPointHelper pointToPointSR;
-  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("200Mbps"));
+  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("100Mbps"));
   pointToPointSR.SetChannelAttribute ("Delay", StringValue ("100us"));
 
   // 建立拓扑结构
@@ -189,7 +189,7 @@ main (int argc, char *argv[])
   // MinTh = 20, MaxTh = 60 recommended in ACM SIGCOMM 2010 DCTCP Paper
   // This yields a target queue depth of 250us at 1 Gb/s
   tchRed1.SetRootQueueDisc ("ns3::RedQueueDisc",
-                            "LinkBandwidth", StringValue ("200bps"),
+                            "LinkBandwidth", StringValue ("100bps"),
                             "LinkDelay", StringValue ("100us"),
                             "MinTh", DoubleValue (20),
                             "MaxTh", DoubleValue (60));

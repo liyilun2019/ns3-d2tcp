@@ -116,8 +116,8 @@ main (int argc, char *argv[])
   std::size_t node_cnt=16;
   std::size_t next_cnt=4;
   Time generationDelay = Seconds(0.1);
-  std::size_t package_size = 1*1024*1042;
-  Time delay = Seconds(1);
+  std::size_t package_size = 10*1024*1042;
+  Time delay = Seconds(0.1);
   CommandLine cmd (__FILE__);
   cmd.AddValue ("SimulationTime", "Length of simulation in seconds.", simTimeSec);
   cmd.Parse (argc, argv);
@@ -159,7 +159,7 @@ main (int argc, char *argv[])
   S.Create (node_cnt);
 
   PointToPointHelper pointToPointSR;
-  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("10Gbps"));
+  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("1Gbps"));
   pointToPointSR.SetChannelAttribute ("Delay", StringValue ("10us"));
 
   // 建立拓扑结构
@@ -195,7 +195,7 @@ main (int argc, char *argv[])
                             "MaxTh", DoubleValue (60));
   for (std::size_t i = 0; i < node_cnt; i++)
     {
-      tchRed10.Install (ST[i].Get (1));
+      tchRed1.Install (ST[i].Get (1));
     }
 
   Ipv4AddressHelper address;

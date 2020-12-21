@@ -159,7 +159,7 @@ main (int argc, char *argv[])
   S.Create (node_cnt);
 
   PointToPointHelper pointToPointSR;
-  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("300Mbps"));
+  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("200Mbps"));
   pointToPointSR.SetChannelAttribute ("Delay", StringValue ("10us"));
 
   // 建立拓扑结构

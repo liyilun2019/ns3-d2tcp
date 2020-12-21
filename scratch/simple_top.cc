@@ -121,12 +121,12 @@ main (int argc, char *argv[])
   Time::SetResolution (Time::NS);
   LogComponentEnableAll (LOG_PREFIX_TIME);
   //LogComponentEnableAll (LOG_PREFIX_FUNC);
-  LogComponentEnable ("ThreeGppHttpClient", LOG_INFO);
-  LogComponentEnable ("ThreeGppHttpServer", LOG_INFO);
+  // LogComponentEnable ("ThreeGppHttpClient", LOG_INFO);
+  // LogComponentEnable ("ThreeGppHttpServer", LOG_INFO);
   LogComponentEnable ("ThreeGppHttpExample", LOG_INFO);
-  LogComponentEnable ("TcpD2tcp",LOG_INFO);
+  // LogComponentEnable ("TcpD2tcp",LOG_INFO);
 
-  std::string tcpTypeId = "TcpD2tcp";
+  std::string tcpTypeId = "TcpDctcp";
   Config::SetDefault ("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::" + tcpTypeId));
 
   Config::SetDefault ("ns3::TcpSocket::SegmentSize", UintegerValue (1448));

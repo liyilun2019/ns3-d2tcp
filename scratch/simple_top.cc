@@ -180,7 +180,6 @@ main (int argc, char *argv[])
                              "LinkDelay", StringValue ("10us"),
                              "MinTh", DoubleValue (50),
                              "MaxTh", DoubleValue (150));
-  QueueDiscContainer queueDiscs1 = tchRed10.Install (T1T2);
 
   TrafficControlHelper tchRed1;
   // MinTh = 20, MaxTh = 60 recommended in ACM SIGCOMM 2010 DCTCP Paper

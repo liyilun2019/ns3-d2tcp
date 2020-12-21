@@ -113,10 +113,10 @@ int
 main (int argc, char *argv[])
 {
   double simTimeSec = 20;
-  std::size_t node_cnt=16;
+  std::size_t node_cnt=64;
   std::size_t next_cnt=8;
   Time generationDelay = Seconds(0.1);
-  std::size_t package_size = 512*1024;
+  std::size_t package_size = 64*1024;
   Time delay = Seconds(0.2);
   CommandLine cmd (__FILE__);
   cmd.AddValue ("SimulationTime", "Length of simulation in seconds.", simTimeSec);
@@ -159,8 +159,8 @@ main (int argc, char *argv[])
   S.Create (node_cnt);
 
   PointToPointHelper pointToPointSR;
-  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("1Gbps"));
-  pointToPointSR.SetChannelAttribute ("Delay", StringValue ("100us"));
+  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("300Mbps"));
+  pointToPointSR.SetChannelAttribute ("Delay", StringValue ("10us"));
 
   // 建立拓扑结构
   std::vector<NetDeviceContainer> ST;
@@ -234,7 +234,7 @@ main (int argc, char *argv[])
     httpServer->GetAttribute ("Variables", varPtr);
     Ptr<ThreeGppHttpVariables> httpVariables = varPtr.Get<ThreeGppHttpVariables> ();
     httpVariables->SetMainObjectSizeMean (package_size); 
-    httpVariables->SetMainObjectSizeStdDev (10240);
+    httpVariables->SetMainObjectSizeStdDev (512);
     httpVariables->SetMainObjectGenerationDelay(generationDelay);
     // httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
   }

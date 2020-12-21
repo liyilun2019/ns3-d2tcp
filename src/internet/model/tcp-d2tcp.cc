@@ -147,16 +147,16 @@ TcpD2tcp::PktsAcked (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked, const Time
       Time deadline = tcb->m_deadline;
       Time remain = deadline - Simulator::Now ();
       Time rtt = tcb->m_lastRtt;
-      if ((remain > Seconds(0.0)) && (txTotal > 0)) {
+      NS_LOG_INFO (this << " bytesEcn " << bytesEcn << ", m_alpha " << m_alpha
+        <<", remain time "<<remain <<" txTotal "<<txTotal <<" deadline is : "
+        <<deadline<<" now is : "<<Simulator::Now()<<" rtt is : "<<rtt);
+      if ((remain > Seconds(0.0)) && (txTotal > 0) && (rtt>Seconds(0.0))) {
         int64x64_t r = remain/rtt;
         double d  =  r.GetDouble();
         double tc = 4.0 * (txTotal - m_ackedBytesTotal) / (3.0 * (tcb->m_cWnd));
         double p  = tc/d;
         m_alpha = pow(m_alpha,p);
       }
-      NS_LOG_INFO (this << " bytesEcn " << bytesEcn << ", m_alpha " << m_alpha
-        <<", remain time "<<remain <<" txTotal "<<txTotal <<" deadline is : "
-        <<deadline<<" now is : "<<Simulator::Now()<<" rtt is : "<<rtt);
       Reset (tcb);
     }
 }

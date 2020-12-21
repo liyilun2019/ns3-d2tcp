@@ -24,6 +24,7 @@
 #include "ns3/csma-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
+#include "ns3/traffic-control-module.h"
 
 using namespace ns3;
 int not_miss_count=0;

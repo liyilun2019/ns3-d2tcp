@@ -53,6 +53,7 @@ ThreeGppHttpClient::ThreeGppHttpClient ()
   m_embeddedObjectsToBeRequested (0),
   m_delay (MicroSeconds(1000000)),
   m_deadline(Seconds(0)),
+  m_begin(Seconds(0)),
   m_httpVariables (CreateObject<ThreeGppHttpVariables> ())
 {
   NS_LOG_FUNCTION (this);
@@ -61,6 +62,11 @@ ThreeGppHttpClient::ThreeGppHttpClient ()
 void 
 ThreeGppHttpClient::SetDelay(Time delay){
   m_delay = delay;
+}
+
+void 
+ThreeGppHttpClient::SetBegin(Time begin){
+  m_begin = begin;
 }
 
 Time 
@@ -225,7 +231,8 @@ ThreeGppHttpClient::StartApplication ()
   if (m_state == NOT_STARTED)
     {
       m_httpVariables->Initialize ();
-      OpenConnection ();
+      Simulator::Schedule(begin,&ThreeGppHttpClient::OpenConnection,this);
+      // OpenConnection ();
     }
   else
     {

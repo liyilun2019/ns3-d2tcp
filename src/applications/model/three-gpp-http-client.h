@@ -125,6 +125,7 @@ public:
 
   void SetDelay(Time delay);
   Time GetDeadline() const;
+  void SetBegin(Time begin);
 
   /**
    * Returns a pointer to the associated socket.
@@ -366,6 +367,7 @@ private:
 
   Time m_delay;
   Time m_deadline;
+  Time m_begin;
 
   // ATTRIBUTES
 

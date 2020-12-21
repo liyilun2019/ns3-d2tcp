@@ -116,7 +116,7 @@ main (int argc, char *argv[])
   std::size_t node_cnt=64;
   std::size_t next_cnt=8;
   Time generationDelay = Seconds(0.1);
-  std::size_t package_size = 64*1024;
+  std::size_t package_size = 128*1024;
   Time delay = Seconds(0.2);
   CommandLine cmd (__FILE__);
   cmd.AddValue ("SimulationTime", "Length of simulation in seconds.", simTimeSec);
@@ -253,6 +253,7 @@ main (int argc, char *argv[])
       ApplicationContainer clientApps = clientHelper.Install (S.Get(i));
       Ptr<ThreeGppHttpClient> httpClient = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();
       httpClient->SetDelay(delay+generationDelay);
+      httpClient->SetBegin(generationDelay*i);
       // Example of connecting to the trace sources
       httpClient->TraceConnectWithoutContext ("RxMainObject", MakeCallback (&ClientMainObjectReceived));
       // httpClient->TraceConnectWithoutContext ("RxEmbeddedObject", MakeCallback (&ClientEmbeddedObjectReceived));

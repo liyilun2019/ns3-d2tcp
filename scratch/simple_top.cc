@@ -112,7 +112,7 @@ int
 main (int argc, char *argv[])
 {
   double simTimeSec = 10;
-  int node_cnt=16;
+  std::size_t node_cnt=16;
   CommandLine cmd (__FILE__);
   cmd.AddValue ("SimulationTime", "Length of simulation in seconds.", simTimeSec);
   cmd.Parse (argc, argv);

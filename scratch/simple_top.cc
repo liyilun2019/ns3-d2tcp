@@ -159,7 +159,7 @@ main (int argc, char *argv[])
   S.Create (node_cnt);
 
   PointToPointHelper pointToPointSR;
-  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("150Mbps"));
+  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("1Gbps"));
   pointToPointSR.SetChannelAttribute ("Delay", StringValue ("100us"));
 
   // 建立拓扑结构
@@ -235,7 +235,7 @@ main (int argc, char *argv[])
     Ptr<ThreeGppHttpVariables> httpVariables = varPtr.Get<ThreeGppHttpVariables> ();
     httpVariables->SetMainObjectSizeMean (package_size); 
     httpVariables->SetMainObjectSizeStdDev (10240);
-    httpVariables->SetMainObjectGenerationDelay(generationDelay*i);
+    httpVariables->SetMainObjectGenerationDelay(generationDelay);
     // httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
   }
 
@@ -249,7 +249,7 @@ main (int argc, char *argv[])
       ThreeGppHttpClientHelper clientHelper (serverAddress);
       ApplicationContainer clientApps = clientHelper.Install (S.Get(i));
       Ptr<ThreeGppHttpClient> httpClient = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();
-      httpClient->SetDelay(delay+generationDelay*i);
+      httpClient->SetDelay(delay+generationDelay);
       // Example of connecting to the trace sources
       httpClient->TraceConnectWithoutContext ("RxMainObject", MakeCallback (&ClientMainObjectReceived));
       // httpClient->TraceConnectWithoutContext ("RxEmbeddedObject", MakeCallback (&ClientEmbeddedObjectReceived));

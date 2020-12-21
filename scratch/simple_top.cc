@@ -105,8 +105,8 @@ ClientEmbeddedObjectReceived (Ptr<const ThreeGppHttpClient>, Ptr<const Packet> p
 
 // Default Network Topology
 //
-// T ------ S(10)
-//   
+// T ------ S(16)
+//  10.1.n.0 
 
 
 int
@@ -116,8 +116,8 @@ main (int argc, char *argv[])
   std::size_t node_cnt=16;
   std::size_t next_cnt=4;
   Time generationDelay = Seconds(0.1);
-  std::size_t package_size = 1*1024*1042;
-  Time delay = Seconds(0.02);
+  std::size_t package_size = 512*1042;
+  Time delay = Seconds(0.2);
   CommandLine cmd (__FILE__);
   cmd.AddValue ("SimulationTime", "Length of simulation in seconds.", simTimeSec);
   cmd.Parse (argc, argv);
@@ -159,8 +159,8 @@ main (int argc, char *argv[])
   S.Create (node_cnt);
 
   PointToPointHelper pointToPointSR;
-  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("1Gbps"));
-  pointToPointSR.SetChannelAttribute ("Delay", StringValue ("10us"));
+  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("200Mbps"));
+  pointToPointSR.SetChannelAttribute ("Delay", StringValue ("100us"));
 
   // 建立拓扑结构
   std::vector<NetDeviceContainer> ST;
@@ -189,8 +189,8 @@ main (int argc, char *argv[])
   // MinTh = 20, MaxTh = 60 recommended in ACM SIGCOMM 2010 DCTCP Paper
   // This yields a target queue depth of 250us at 1 Gb/s
   tchRed1.SetRootQueueDisc ("ns3::RedQueueDisc",
-                            "LinkBandwidth", StringValue ("1Gbps"),
-                            "LinkDelay", StringValue ("10us"),
+                            "LinkBandwidth", StringValue ("200bps"),
+                            "LinkDelay", StringValue ("100us"),
                             "MinTh", DoubleValue (20),
                             "MaxTh", DoubleValue (60));
   for (std::size_t i = 0; i < node_cnt; i++)
@@ -245,7 +245,7 @@ main (int argc, char *argv[])
       std::size_t nxt = (i+j+1)%node_cnt;
       Ipv4Address serverAddress = ipST[nxt].GetAddress (0);
       Ipv4Address clinetAddress = ipST[i].GetAddress (0);
-      NS_LOG_INFO("Create clinet " << clinetAddress << " to server"<< serverAddress);
+      NS_LOG_INFO("Create clinet " << clinetAddress << " to server "<< serverAddress);
       ThreeGppHttpClientHelper clientHelper (serverAddress);
       ApplicationContainer clientApps = clientHelper.Install (S.Get(i));
       Ptr<ThreeGppHttpClient> httpClient = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();

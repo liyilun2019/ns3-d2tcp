@@ -113,7 +113,7 @@ int
 main (int argc, char *argv[])
 {
   double simTimeSec = 10;
-  std::size_t node_cnt=16;
+  std::size_t node_cnt=64;
   CommandLine cmd (__FILE__);
   cmd.AddValue ("SimulationTime", "Length of simulation in seconds.", simTimeSec);
   cmd.Parse (argc, argv);
@@ -124,7 +124,7 @@ main (int argc, char *argv[])
   // LogComponentEnable ("ThreeGppHttpClient", LOG_INFO);
   // LogComponentEnable ("ThreeGppHttpServer", LOG_INFO);
   LogComponentEnable ("ThreeGppHttpExample", LOG_INFO);
-  LogComponentEnable ("TcpD2tcp",LOG_INFO);
+  // LogComponentEnable ("TcpD2tcp",LOG_INFO);
 
   std::string tcpTypeId = "TcpD2tcp";
   Config::SetDefault ("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::" + tcpTypeId));
@@ -237,7 +237,7 @@ main (int argc, char *argv[])
 
   // 对每个节点，建立4个clinet，向后4个server发请求
   for (std::size_t i = 0; i<node_cnt ;i++){
-    for (std::size_t j=0 ; j<4; j++){
+    for (std::size_t j=0 ; j < 8; j++){
       std::size_t nxt = (i+j+1)%node_cnt;
       Ipv4Address serverAddress = ipST[nxt].GetAddress (0);
       Ipv4Address clinetAddress = ipST[i].GetAddress (0);

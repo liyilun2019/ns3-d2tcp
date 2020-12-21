@@ -59,7 +59,7 @@ ServerTx (Ptr<const Packet> packet)
 void
 ClientRx (Ptr<const Packet> packet, const Address &address)
 {
-  // NS_LOG_INFO ("Client received a packet of " << packet->GetSize () << " bytes from " << InetSocketAddress::ConvertFrom(address).GetIpv4 ());
+  NS_LOG_INFO ("Client received a packet of " << packet->GetSize () << " bytes from " << InetSocketAddress::ConvertFrom(address).GetIpv4 ());
 }
 
 void
@@ -116,8 +116,8 @@ main (int argc, char *argv[])
   std::size_t node_cnt=16;
   std::size_t next_cnt=4;
   Time generationDelay = Seconds(0.1);
-  std::size_t package_size = 10*1024*1042;
-  Time delay = Seconds(0.1);
+  std::size_t package_size = 1*1024*1042;
+  Time delay = Seconds(0.02);
   CommandLine cmd (__FILE__);
   cmd.AddValue ("SimulationTime", "Length of simulation in seconds.", simTimeSec);
   cmd.Parse (argc, argv);

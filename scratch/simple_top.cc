@@ -104,24 +104,15 @@ ClientEmbeddedObjectReceived (Ptr<const ThreeGppHttpClient>, Ptr<const Packet> p
 
 // Default Network Topology
 //
-//       10.1.1.0
-// n0 -------------- n1   n2   n3   n4
-//    point-to-point  |    |    |    |
-//                    ================
-//                      LAN 10.1.2.0
+// T ------ S(10)
+//   
 
-
-void cli_trace(Ptr<ThreeGppHttpClient> httpClient){
-  // Example of connecting to the trace sources
-  httpClient->TraceConnectWithoutContext ("RxMainObject", MakeCallback (&ClientMainObjectReceived));
-  httpClient->TraceConnectWithoutContext ("RxEmbeddedObject", MakeCallback (&ClientEmbeddedObjectReceived));
-  httpClient->TraceConnectWithoutContext ("Rx", MakeCallback (&ClientRx));
-}
 
 int
 main (int argc, char *argv[])
 {
   double simTimeSec = 10;
+  int node_cnt=16;
   CommandLine cmd (__FILE__);
   cmd.AddValue ("SimulationTime", "Length of simulation in seconds.", simTimeSec);
   cmd.Parse (argc, argv);
@@ -157,56 +148,73 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::RedQueueDisc::MinTh", DoubleValue (20));
   Config::SetDefault ("ns3::RedQueueDisc::MaxTh", DoubleValue (60));
 
-  uint32_t nCsma = 3;
-  nCsma = nCsma == 0 ? 1 : nCsma;
 
-  NodeContainer p2pNodes;
-  p2pNodes.Create (2);
+  NodeContainer S;
+  Ptr<Node> T = CreateObject<Node> ();
+  S.Create (node_cnt);
 
-  NodeContainer csmaNodes;
-  csmaNodes.Add (p2pNodes.Get (1));
-  csmaNodes.Create (nCsma);
+  PointToPointHelper pointToPointSR;
+  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("1Gbps"));
+  pointToPointSR.SetChannelAttribute ("Delay", StringValue ("10us"));
 
-  PointToPointHelper pointToPoint;
-  pointToPoint.SetDeviceAttribute ("DataRate", StringValue ("5Mbps"));
-  pointToPoint.SetChannelAttribute ("Delay", StringValue ("2ms"));
+  // 建立拓扑结构
+  std::vector<NetDeviceContainer> ST;
+  ST.reserve (node_cnt);
 
-  NetDeviceContainer p2pDevices;
-  p2pDevices = pointToPoint.Install (p2pNodes);
+  for (std::size_t i = 0; i < node_cnt; i++)
+    {
+      Ptr<Node> n = S.Get (i);
+      ST.push_back (pointToPointSR.Install (n, T));
+    }
 
-  CsmaHelper csma;
-  csma.SetChannelAttribute ("DataRate", StringValue ("100Mbps"));
-  csma.SetChannelAttribute ("Delay", TimeValue (NanoSeconds (656000)));
-
-  NetDeviceContainer csmaDevices;
-  csmaDevices = csma.Install (csmaNodes);
-
+  // 建立协议栈，使用red queue
   InternetStackHelper stack;
-  stack.Install (p2pNodes.Get (0));
-  stack.Install (csmaNodes);
+  stack.InstallAll ();
+
+  TrafficControlHelper tchRed10;
+  // MinTh = 50, MaxTh = 150 recommended in ACM SIGCOMM 2010 DCTCP Paper
+  // This yields a target (MinTh) queue depth of 60us at 10 Gb/s
+  tchRed10.SetRootQueueDisc ("ns3::RedQueueDisc",
+                             "LinkBandwidth", StringValue ("10Gbps"),
+                             "LinkDelay", StringValue ("10us"),
+                             "MinTh", DoubleValue (50),
+                             "MaxTh", DoubleValue (150));
+  QueueDiscContainer queueDiscs1 = tchRed10.Install (T1T2);
+
+  TrafficControlHelper tchRed1;
+  // MinTh = 20, MaxTh = 60 recommended in ACM SIGCOMM 2010 DCTCP Paper
+  // This yields a target queue depth of 250us at 1 Gb/s
+  tchRed1.SetRootQueueDisc ("ns3::RedQueueDisc",
+                            "LinkBandwidth", StringValue ("1Gbps"),
+                            "LinkDelay", StringValue ("10us"),
+                            "MinTh", DoubleValue (20),
+                            "MaxTh", DoubleValue (60));
+  for (std::size_t i = 0; i < node_cnt; i++)
+    {
+      tchRed1.Install (ST[i].Get (1));
+    }
 
   Ipv4AddressHelper address;
+  std::vector<Ipv4InterfaceContainer> ipST;
+  ipST.reserve (node_cnt);
   address.SetBase ("10.1.1.0", "255.255.255.0");
-  Ipv4InterfaceContainer p2pInterfaces;
-  p2pInterfaces = address.Assign (p2pDevices);
+  for (std::size_t i = 0; i < node_cnt; i++)
+    {
+      ipST.push_back (address.Assign (ST[i]));
+      address.NewNetwork ();
+    }
+  Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
 
-  address.SetBase ("10.1.2.0", "255.255.255.0");
-  Ipv4InterfaceContainer csmaInterfaces;
-  csmaInterfaces = address.Assign (csmaDevices);
-
-  NS_LOG_INFO ("Create applications.");
-
-  for(int i=0;i<4;i++){
-    // int i=0;
-    
-    Ipv4Address serverAddress = csmaInterfaces.GetAddress (i);
+  // 对每个节点建立server
+  for (std::size_t i = 0; i<node_cnt ;i++){
+    Ipv4Address serverAddress = ipST[i].GetAddress (0);
     NS_LOG_INFO("Create server " << serverAddress);
 
     // Create HTTP server helper
     ThreeGppHttpServerHelper serverHelper (serverAddress);
 
     // Install HTTP server
-    ApplicationContainer serverApps = serverHelper.Install (csmaNodes.Get(i));
+    ApplicationContainer serverApps = serverHelper.Install (S.Get(i));
 
     Ptr<ThreeGppHttpServer> httpServer = serverApps.Get (0)->GetObject<ThreeGppHttpServer> ();
 
@@ -225,21 +233,28 @@ main (int argc, char *argv[])
     httpVariables->SetMainObjectSizeStdDev (10240); // 10kB
     httpVariables->SetMainObjectGenerationDelay(Seconds(0.8));
     // httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
-
-    NS_LOG_INFO("Create clinet " << i);
-
-    ThreeGppHttpClientHelper clientHelper (serverAddress);
-    ApplicationContainer clientApps = clientHelper.Install (csmaNodes.Get(3));
-    Ptr<ThreeGppHttpClient> httpClient = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();
-    httpClient->SetDelay(Seconds(1));
-    // Example of connecting to the trace sources
-    httpClient->TraceConnectWithoutContext ("RxMainObject", MakeCallback (&ClientMainObjectReceived));
-    // httpClient->TraceConnectWithoutContext ("RxEmbeddedObject", MakeCallback (&ClientEmbeddedObjectReceived));
-    httpClient->TraceConnectWithoutContext ("Rx", MakeCallback (&ClientRx));
-    clientApps.Stop (Seconds (simTimeSec));
   }
 
+  // 对每个节点，建立4个clinet，向后4个server发请求
+  for (std::size_t i = 0; i<node_cnt ;i++){
+    for (std::size_t j=0 ; j<4; j++){
+      std::size_t nxt = (i+j+1)%node_cnt;
+      Ipv4Address serverAddress = ipST[nxt].GetAddress (0);
+      Ipv4Address clinetAddress = ipST[i].GetAddress (0);
+      NS_LOG_INFO("Create clinet " << clinetAddress << " to server"<< serverAddress);
+      ThreeGppHttpClientHelper clientHelper (serverAddress);
+      ApplicationContainer clientApps = clientHelper.Install (S.Get(i));
+      Ptr<ThreeGppHttpClient> httpClient = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();
+      httpClient->SetDelay(Seconds(1.2));
+      // Example of connecting to the trace sources
+      httpClient->TraceConnectWithoutContext ("RxMainObject", MakeCallback (&ClientMainObjectReceived));
+      // httpClient->TraceConnectWithoutContext ("RxEmbeddedObject", MakeCallback (&ClientEmbeddedObjectReceived));
+      httpClient->TraceConnectWithoutContext ("Rx", MakeCallback (&ClientRx));
+      clientApps.Stop (Seconds (simTimeSec));
+    }
+  }
 
+  NS_LOG_INFO("~~~~~~~~~~~~~~~~~ Running ~~~~~~~~~~~~~~~");
   Simulator::Run ();
   Simulator::Destroy ();
   return 0;

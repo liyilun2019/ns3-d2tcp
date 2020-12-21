@@ -29,6 +29,7 @@
 using namespace ns3;
 int not_miss_count=0;
 int all_cnt=0;
+uint32_t tot_bytes = 0;
 
 NS_LOG_COMPONENT_DEFINE ("ThreeGppHttpExample");
 
@@ -59,7 +60,10 @@ ServerTx (Ptr<const Packet> packet)
 void
 ClientRx (Ptr<const Packet> packet, const Address &address)
 {
-  // NS_LOG_INFO ("Client received a packet of " << packet->GetSize () << " bytes from " << InetSocketAddress::ConvertFrom(address).GetIpv4 ());
+  tot_bytes += packet->GetSize();
+  Time now = Simulator::Now();
+  double throughout = tot_bytes/now.GetSeconds(); // bytes/s
+  NS_LOG_INFO ("Client received a packet of " << packet->GetSize () << " bytes from " << InetSocketAddress::ConvertFrom(address).GetIpv4 () << " throughout is "<<throughout<<" byte/s");  
 }
 
 void

@@ -236,7 +236,7 @@ main (int argc, char *argv[])
   }
 
   // 对每个节点，建立4个clinet，向后2个server发请求
-  for (std::size_t i = 0; i<node_cnt ;i++){
+  for (std::size_t i = 0; i<1 ;i++){
     for (std::size_t j=0 ; j<2; j++){
       std::size_t nxt = (i+j+1)%node_cnt;
       Ipv4Address serverAddress = ipST[nxt].GetAddress (0);

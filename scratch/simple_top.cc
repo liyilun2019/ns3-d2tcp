@@ -59,7 +59,7 @@ ServerTx (Ptr<const Packet> packet)
 void
 ClientRx (Ptr<const Packet> packet, const Address &address)
 {
-  NS_LOG_INFO ("Client received a packet of " << packet->GetSize () << " bytes from " << InetSocketAddress::ConvertFrom(address).GetIpv4 ());
+  // NS_LOG_INFO ("Client received a packet of " << packet->GetSize () << " bytes from " << InetSocketAddress::ConvertFrom(address).GetIpv4 ());
 }
 
 void
@@ -113,7 +113,8 @@ int
 main (int argc, char *argv[])
 {
   double simTimeSec = 10;
-  std::size_t node_cnt=64;
+  std::size_t node_cnt=32;
+  std::size_t next_cnt=4;
   CommandLine cmd (__FILE__);
   cmd.AddValue ("SimulationTime", "Length of simulation in seconds.", simTimeSec);
   cmd.Parse (argc, argv);
@@ -235,9 +236,9 @@ main (int argc, char *argv[])
     // httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
   }
 
-  // 对每个节点，建立4个clinet，向后4个server发请求
+  // 对每个节点，建立next_cnt个clinet，向后next_cnt个server发请求
   for (std::size_t i = 0; i<node_cnt ;i++){
-    for (std::size_t j=0 ; j < 8; j++){
+    for (std::size_t j=0 ; j < next_cnt; j++){
       std::size_t nxt = (i+j+1)%node_cnt;
       Ipv4Address serverAddress = ipST[nxt].GetAddress (0);
       Ipv4Address clinetAddress = ipST[i].GetAddress (0);
@@ -245,7 +246,7 @@ main (int argc, char *argv[])
       ThreeGppHttpClientHelper clientHelper (serverAddress);
       ApplicationContainer clientApps = clientHelper.Install (S.Get(i));
       Ptr<ThreeGppHttpClient> httpClient = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();
-      httpClient->SetDelay(Seconds(1.2));
+      httpClient->SetDelay(Seconds(1.0));
       // Example of connecting to the trace sources
       httpClient->TraceConnectWithoutContext ("RxMainObject", MakeCallback (&ClientMainObjectReceived));
       // httpClient->TraceConnectWithoutContext ("RxEmbeddedObject", MakeCallback (&ClientEmbeddedObjectReceived));

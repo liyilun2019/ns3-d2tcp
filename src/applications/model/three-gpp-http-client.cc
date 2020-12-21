@@ -231,7 +231,7 @@ ThreeGppHttpClient::StartApplication ()
   if (m_state == NOT_STARTED)
     {
       m_httpVariables->Initialize ();
-      Simulator::Schedule(begin,&ThreeGppHttpClient::OpenConnection,this);
+      Simulator::Schedule(m_begin,&ThreeGppHttpClient::OpenConnection,this);
       // OpenConnection ();
     }
   else

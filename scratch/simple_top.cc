@@ -31,6 +31,7 @@ int not_miss_count=0;
 int all_cnt=0;
 uint32_t tot_bytes = 0;
 double throughout = 0;
+std::vector<double> rxSTBytes;
 
 NS_LOG_COMPONENT_DEFINE ("ThreeGppHttpExample");
 
@@ -61,20 +62,32 @@ ServerTx (Ptr<const Packet> packet)
 void
 ClientRx (Ptr<const Packet> packet, const Address &address)
 {
-  tot_bytes += packet->GetSize();
   Time now = Simulator::Now();
+  tot_bytes += packet->GetSize();
   throughout = tot_bytes/now.GetSeconds(); // bytes/s
   // NS_LOG_INFO ("Client received a packet of " << packet->GetSize () << " bytes from " << InetSocketAddress::ConvertFrom(address).GetIpv4 () << " throughout is "<<throughout<<" byte/s");  
 }
 
+//Jain's fairness index
+// 指的是吞吐量均值的平方初以平方的均值，接近1代表公平，接近1/n代表不公平，这里n=1024
 void Status(){
   double missrate=1-(double)not_miss_count/(double)all_cnt;
-  NS_LOG_INFO(" throughout is "<<throughout<<" byte/s, "<<"missrate is "<<missrate<<", not miss is "<<not_miss_count<<", all_cnt is "<<all_cnt);
+  double sum = 0;
+  double sqrt_sum=0;
+  for (std::size_t i = 0; i < 1024; i++)
+  {
+    sum += rxSTBytes[i];
+    sqrt_sum += rxSTBytes[i]*rxSTBytes[i];
+  }
+  double fairness = sum*sum/sqrt_sum/1024;
+  NS_LOG_INFO(" throughout is "<<throughout<<" byte/s, "<<"missrate is "<<missrate<<", not miss is "<<not_miss_count<<", all_cnt is "<<all_cnt
+    <<", Jain's fairness index is "<< fairness);
 }
 
 void
 ClientMainObjectReceived (Ptr<const ThreeGppHttpClient> client, Ptr<const Packet> packet)
 {
+  Time now = Simulator::Now();
   Ptr<Packet> p = packet->Copy ();
   ThreeGppHttpHeader header;
   p->RemoveHeader (header);
@@ -83,9 +96,10 @@ ClientMainObjectReceived (Ptr<const ThreeGppHttpClient> client, Ptr<const Packet
     {
       // NS_LOG_INFO ("Client has successfully received a main object of "
                    // << p->GetSize () << " bytes."<<" deadline is :"<<client->GetDeadline());
-      if(Simulator::Now()<=client->GetDeadline()){
+      if(now<=client->GetDeadline()){
         not_miss_count++;
       }
+      rxSTBytes.push_back(p->GetSize ()/now.GetSeconds()/1e6);
       all_cnt++;
       // NS_LOG_INFO("not_miss_count = "<<not_miss_count<<", all_cnt = "<<all_cnt);
     }
@@ -124,9 +138,10 @@ main (int argc, char *argv[])
 {
   double simTimeSec = 30;
   std::size_t node_cnt=32;
-  std::size_t next_cnt=8;
+  std::size_t next_cnt=2;
   std::size_t repeat_cnt = 1024/node_cnt/next_cnt;
   // std::size_t repeat_cnt = 1;
+  rxSTBytes.reserve(1024);
   Time generationDelay = Seconds(0.1);
   std::size_t package_size = 64*1024;
   // 绝对拥塞时，多条链路都集中在交换机上，相当于只有一条链路
@@ -156,8 +171,8 @@ main (int argc, char *argv[])
   LogComponentEnable ("ThreeGppHttpExample", LOG_INFO);
   // LogComponentEnable ("TcpD2tcp",LOG_INFO);
 
-  std::string tcpTypeId = "TcpDctcp";
-  Config::SetDefault ("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::" + tcpTypeId));
+  // std::string tcpTypeId = "TcpD2tcp";
+  // Config::SetDefault ("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::" + tcpTypeId));
 
   Config::SetDefault ("ns3::TcpSocket::SegmentSize", UintegerValue (1448));
   Config::SetDefault ("ns3::TcpSocket::DelAckCount", UintegerValue (2));
@@ -238,7 +253,7 @@ main (int argc, char *argv[])
   // 对每个节点建立server
   for (std::size_t i = 0; i<node_cnt ;i++){
     Ipv4Address serverAddress = ipST[i].GetAddress (0);
-    NS_LOG_INFO("Create server " << serverAddress);
+    // NS_LOG_INFO("Create server " << serverAddress);
 
     // Create HTTP server helper
     ThreeGppHttpServerHelper serverHelper (serverAddress);
@@ -271,8 +286,8 @@ main (int argc, char *argv[])
     for (std::size_t j=0 ; j < next_cnt; j++){
       std::size_t nxt = (i+j+1)%node_cnt;
       Ipv4Address serverAddress = ipST[nxt].GetAddress (0);
-      Ipv4Address clinetAddress = ipST[i].GetAddress (0);
-      NS_LOG_INFO("Create clinet " << clinetAddress << " to server "<< serverAddress);
+      // Ipv4Address clinetAddress = ipST[i].GetAddress (0);
+      // NS_LOG_INFO("Create clinet " << clinetAddress << " to server "<< serverAddress);
       ThreeGppHttpClientHelper clientHelper (serverAddress);
       ApplicationContainer clientApps = clientHelper.Install (S.Get(i));
       Ptr<ThreeGppHttpClient> httpClient = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();

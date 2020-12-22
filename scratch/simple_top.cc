@@ -30,13 +30,14 @@ using namespace ns3;
 int not_miss_count=0;
 int all_cnt=0;
 uint32_t tot_bytes = 0;
+double throughout = 0;
 
 NS_LOG_COMPONENT_DEFINE ("ThreeGppHttpExample");
 
 void
 ServerConnectionEstablished (Ptr<const ThreeGppHttpServer>, Ptr<Socket>)
 {
-  NS_LOG_INFO ("Client has established a connection to the server.");
+  // NS_LOG_INFO ("Client has established a connection to the server.");
 }
 
 void
@@ -62,8 +63,13 @@ ClientRx (Ptr<const Packet> packet, const Address &address)
 {
   tot_bytes += packet->GetSize();
   Time now = Simulator::Now();
-  double throughout = tot_bytes/now.GetSeconds(); // bytes/s
-  NS_LOG_INFO ("Client received a packet of " << packet->GetSize () << " bytes from " << InetSocketAddress::ConvertFrom(address).GetIpv4 () << " throughout is "<<throughout<<" byte/s");  
+  throughout = tot_bytes/now.GetSeconds(); // bytes/s
+  // NS_LOG_INFO ("Client received a packet of " << packet->GetSize () << " bytes from " << InetSocketAddress::ConvertFrom(address).GetIpv4 () << " throughout is "<<throughout<<" byte/s");  
+}
+
+void Status(){
+  double missrate=1-(double)not_miss_count/(double)all_cnt;
+  NS_LOG_INFO(" throughout is "<<throughout<<" byte/s, "<<"missrate is "<<missrate<<", not miss is "<<not_miss_count<<", all_cnt is "<<all_cnt);
 }
 
 void
@@ -75,13 +81,13 @@ ClientMainObjectReceived (Ptr<const ThreeGppHttpClient> client, Ptr<const Packet
   if (header.GetContentLength () == p->GetSize ()
       && header.GetContentType () == ThreeGppHttpHeader::MAIN_OBJECT)
     {
-      NS_LOG_INFO ("Client has successfully received a main object of "
-                   << p->GetSize () << " bytes."<<" deadline is :"<<client->GetDeadline());
+      // NS_LOG_INFO ("Client has successfully received a main object of "
+                   // << p->GetSize () << " bytes."<<" deadline is :"<<client->GetDeadline());
       if(Simulator::Now()<=client->GetDeadline()){
         not_miss_count++;
       }
       all_cnt++;
-      NS_LOG_INFO("not_miss_count = "<<not_miss_count<<", all_cnt = "<<all_cnt);
+      // NS_LOG_INFO("not_miss_count = "<<not_miss_count<<", all_cnt = "<<all_cnt);
     }
   else
     {
@@ -116,12 +122,28 @@ ClientEmbeddedObjectReceived (Ptr<const ThreeGppHttpClient>, Ptr<const Packet> p
 int
 main (int argc, char *argv[])
 {
-  double simTimeSec = 20;
-  std::size_t node_cnt=64;
+  double simTimeSec = 30;
+  std::size_t node_cnt=32;
   std::size_t next_cnt=8;
+  std::size_t repeat_cnt = 1024/node_cnt/next_cnt;
+  // std::size_t repeat_cnt = 1;
   Time generationDelay = Seconds(0.1);
-  std::size_t package_size = 128*1024;
-  Time delay = Seconds(0.2);
+  std::size_t package_size = 64*1024;
+  // 绝对拥塞时，多条链路都集中在交换机上，相当于只有一条链路
+  // 不错开的话
+  // package / datarate * tot_cnt * 8 ~= 理论时延
+  // datarate = 8 * tot_cnt * package / 理论时延
+  // 
+  // 当路由器buffer无限大，拥塞关键在线路上
+  // 不错开的情况下，每个节点自己线路用nxt_cnt*repeat_cnt次，后nxt_cnt个链路用repeat_cnt次，因此每个链路2*nxt_cnt*repeat_cnt
+  // 2*nxt_cnt*repeat_cnt * package_size * 8 / datarate ~= 理论时延
+  // datarate = 8 * 2 * (tot_cnt/node_cnt) * package_size /理论时延
+  // 如果是双通的话，不用乘以2，因为上下行是分开的
+  // datarate = 8 * (tot_cnt/node_cnt) * package_size /理论时延
+  // 无论怎么样，这个data_rate更小，意味着路由很强的条件下至少要多少带宽
+  // 
+  // 路由在2666p的情况下每个口4MB，每个口实际需要64*1024*nxt_cnt*repeat_cnt这么大的队列
+  Time delay = Seconds(0.1);
   CommandLine cmd (__FILE__);
   cmd.AddValue ("SimulationTime", "Length of simulation in seconds.", simTimeSec);
   cmd.Parse (argc, argv);
@@ -134,7 +156,7 @@ main (int argc, char *argv[])
   LogComponentEnable ("ThreeGppHttpExample", LOG_INFO);
   // LogComponentEnable ("TcpD2tcp",LOG_INFO);
 
-  std::string tcpTypeId = "TcpD2tcp";
+  std::string tcpTypeId = "TcpDctcp";
   Config::SetDefault ("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::" + tcpTypeId));
 
   Config::SetDefault ("ns3::TcpSocket::SegmentSize", UintegerValue (1448));
@@ -151,11 +173,11 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::RedQueueDisc::MeanPktSize", UintegerValue (1500));
   // Triumph and Scorpion switches used in DCTCP Paper have 4 MB of buffer
   // If every packet is 1500 bytes, 2666 packets can be stored in 4 MB
-  Config::SetDefault ("ns3::RedQueueDisc::MaxSize", QueueSizeValue (QueueSize ("2666p")));
+  Config::SetDefault ("ns3::RedQueueDisc::MaxSize", QueueSizeValue (QueueSize ("26p")));
   // DCTCP tracks instantaneous queue length only; so set QW = 1
   Config::SetDefault ("ns3::RedQueueDisc::QW", DoubleValue (1));
-  Config::SetDefault ("ns3::RedQueueDisc::MinTh", DoubleValue (20));
-  Config::SetDefault ("ns3::RedQueueDisc::MaxTh", DoubleValue (60));
+  Config::SetDefault ("ns3::RedQueueDisc::MinTh", DoubleValue (2));
+  Config::SetDefault ("ns3::RedQueueDisc::MaxTh", DoubleValue (6));
 
 
   NodeContainer S;
@@ -163,7 +185,7 @@ main (int argc, char *argv[])
   S.Create (node_cnt);
 
   PointToPointHelper pointToPointSR;
-  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("40Mbps"));
+  pointToPointSR.SetDeviceAttribute ("DataRate", StringValue ("1Gbps"));
   pointToPointSR.SetChannelAttribute ("Delay", StringValue ("10us"));
 
   // 建立拓扑结构
@@ -189,18 +211,18 @@ main (int argc, char *argv[])
   //                            "MinTh", DoubleValue (50),
   //                            "MaxTh", DoubleValue (150));
 
-  // TrafficControlHelper tchRed1;
+  TrafficControlHelper tchRed1;
   // MinTh = 20, MaxTh = 60 recommended in ACM SIGCOMM 2010 DCTCP Paper
   // This yields a target queue depth of 250us at 1 Gb/s
-  // tchRed1.SetRootQueueDisc ("ns3::RedQueueDisc",
-                            // "LinkBandwidth", StringValue ("100bps"),
-                            // "LinkDelay", StringValue ("100us"),
-                            // "MinTh", DoubleValue (20),
-                            // "MaxTh", DoubleValue (60));
-  // for (std::size_t i = 0; i < node_cnt; i++)
-  //   {
-  //     tchRed1.Install (ST[i].Get (1));
-  //   }
+  tchRed1.SetRootQueueDisc ("ns3::RedQueueDisc",
+                            "LinkBandwidth", StringValue ("100bps"),
+                            "LinkDelay", StringValue ("10us"),
+                            "MinTh", DoubleValue (2),
+                            "MaxTh", DoubleValue (6));
+  for (std::size_t i = 0; i < node_cnt; i++)
+    {
+      tchRed1.Install (ST[i].Get (1));
+    }
 
   Ipv4AddressHelper address;
   std::vector<Ipv4InterfaceContainer> ipST;
@@ -238,16 +260,14 @@ main (int argc, char *argv[])
     httpServer->GetAttribute ("Variables", varPtr);
     Ptr<ThreeGppHttpVariables> httpVariables = varPtr.Get<ThreeGppHttpVariables> ();
     httpVariables->SetMainObjectSizeMean (package_size); 
-    httpVariables->SetMainObjectSizeStdDev (512);
+    httpVariables->SetMainObjectSizeStdDev (0);
     httpVariables->SetMainObjectGenerationDelay(generationDelay);
     // httpVariables->SetEmbeddedObjectGenerationDelay(Seconds(0.5));
   }
 
   // 对每个节点，建立next_cnt个clinet，向后next_cnt个server发请求
+  for (std::size_t t=0;t<repeat_cnt;t++)
   for (std::size_t i = 0; i<node_cnt ;i++){
-    if(i%(next_cnt/8)!=0){
-      continue;
-    }
     for (std::size_t j=0 ; j < next_cnt; j++){
       std::size_t nxt = (i+j+1)%node_cnt;
       Ipv4Address serverAddress = ipST[nxt].GetAddress (0);
@@ -257,7 +277,7 @@ main (int argc, char *argv[])
       ApplicationContainer clientApps = clientHelper.Install (S.Get(i));
       Ptr<ThreeGppHttpClient> httpClient = clientApps.Get (0)->GetObject<ThreeGppHttpClient> ();
       httpClient->SetDelay(delay+generationDelay);
-      httpClient->SetBegin(generationDelay*i);
+      // httpClient->SetBegin(generationDelay*i);
       // Example of connecting to the trace sources
       httpClient->TraceConnectWithoutContext ("RxMainObject", MakeCallback (&ClientMainObjectReceived));
       // httpClient->TraceConnectWithoutContext ("RxEmbeddedObject", MakeCallback (&ClientEmbeddedObjectReceived));
@@ -265,6 +285,8 @@ main (int argc, char *argv[])
       clientApps.Stop (Seconds (simTimeSec));
     }
   }
+
+  Simulator::Schedule(Seconds(20),&Status);
 
   NS_LOG_INFO("~~~~~~~~~~~~~~~~~ Running ~~~~~~~~~~~~~~~");
   Simulator::Run ();

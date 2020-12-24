@@ -171,7 +171,7 @@ main (int argc, char *argv[])
   LogComponentEnable ("ThreeGppHttpExample", LOG_INFO);
   // LogComponentEnable ("TcpD2tcp",LOG_INFO);
 
-  std::string tcpTypeId = "TcpD2tcp";
+  std::string tcpTypeId = "TcpDctcp";
   Config::SetDefault ("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::" + tcpTypeId));
 
   Config::SetDefault ("ns3::TcpSocket::SegmentSize", UintegerValue (1448));
